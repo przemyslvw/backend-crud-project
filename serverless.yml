@@ -1,0 +1,35 @@
+service: aws-crud-backend
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    TABLE_NAME: Items
+
+functions:
+  api:
+    handler: index.handler
+    events:
+      - http:
+          path: items
+          method: post # Dodaje nowy element
+      - http:
+          path: items
+          method: get # Pobiera wszystkie elementy
+      - http:
+          path: items/{id}
+          method: delete # Usuwa element o podanym id
+
+resources:
+  Resources:
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Items
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST # Tryb płatności za żądanie
