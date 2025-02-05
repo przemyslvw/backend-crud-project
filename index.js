@@ -3,20 +3,28 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+
+app.use(cors()); // Obsługa CORS
+app.use(express.json()); // Middleware do parsowania JSON
+app.use(express.urlencoded({ extended: true })); // Obsługa danych z formularzy
 
 // Tymczasowe przechowywanie danych w pamięci
 let items = [];
 
 // Endpoint do tworzenia nowego elementu
-app.post("/items", (req, res) => {
-    const { id, name, description } = req.body;
-    if (!id || !name || !description) {
+app.post("/items", async (req, res) => {
+    const { id, startTime, endTime, startMileage, endMileage, driverName, licensePlate } = req.body;
+
+    // Walidacja danych
+    if (!id || !startTime || !endTime || !startMileage || !endMileage || !driverName || !licensePlate) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    const newItem = { id, name, description };
+    if (endMileage < startMileage) {
+        return res.status(400).json({ error: "End mileage must be greater than start mileage" });
+    }
+
+    const newItem = { id, startTime, endTime, startMileage, endMileage, driverName, licensePlate };
     items.push(newItem);
     res.status(201).json({ message: "Item added", item: newItem });
 });
